@@ -4,6 +4,7 @@ import { parse } from "papaparse";
 export default function App() {
   // will be used to highlight the dropzone area
   const [highlighted, setHighlighted] = React.useState(false);
+  const [contacts, setContacts] = React.useState([{ email: "fake@email.com", name: "fake name" }]);
 
   return (
     <div>
@@ -28,13 +29,24 @@ export default function App() {
           //process files as array
           Array.from(e.dataTransfer.files)
             .filter((file) => file.type === "text/csv")
-            .forEach((file) => {
-              console.log(file);
+            .forEach(async (file) => {
+              const text = await file.text();
+              const result = parse(text, { header: true });
+              //takes the existing data and appends new data to the existing data
+              setContacts((existing) => [...existing, ...result.data]);
             });
         }}
       >
         Drop Here
       </div>
+      <ul>
+        {/* for each contact we will produce an li */}
+        {contacts.map((contact) => (
+          <li key={contact.email}>
+            <strong>{contact.name}</strong>: {contact.email}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
